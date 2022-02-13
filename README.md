@@ -67,7 +67,7 @@ Contribute using the github workflow model
     
 ## Sources
 ---
-## Code formated after (source in code as well):
+#### Code formated after (source in code as well):
 * Nicole Wallace https://github.com/nicolewallace09/employee-tracker
     
 ## Authors
