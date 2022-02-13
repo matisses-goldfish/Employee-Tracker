@@ -65,9 +65,10 @@ THEN I am prompted to select an employee to update and their new role and this i
 ---
 Contribute using the github workflow model
     
-## Testing
+## Sources
 ---
-N/A
+## Code formated after (source in code as well):
+* Nicole Wallace https://github.com/nicolewallace09/employee-tracker
     
 ## Authors
 ---
