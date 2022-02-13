@@ -7,25 +7,29 @@ require('dotenv').config()
 
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
-    password: process.env.MYSQL_PASSWORD,
-    database: 'employee_db'
-  });
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  },
+  console.log(`Connected to the employee_db database.`)
+  );
+
   
   connection.connect(err => {
     if (err) throw err;
-    console.log('connected as id ' + connection.threadId);
-    afterConnection();
+    initalQuest();
   });
 
   const initalQuest = () => {
     inquirer.prompt ([
     {
         type: 'list',
+        name:'choices',
         message: 'What would you like to do?', 
         choices: ['View All Employees', 'Add Employees', 'Update Employee Role', 'View All Roles', 'Add Role', 'View all Departments', 'Add Department', 'Quit']
-    },
+    }
 ])
+
 .then((answers) => {
     const { choices } = answers; 
 
@@ -46,7 +50,7 @@ const connection = mysql.createConnection({
     }
 
     if (choices === "Add Role") {
-        addRoles();
+        addRole();
     }
     if (choices === "View all Departments") {
         viewDepartment();
@@ -63,14 +67,24 @@ const connection = mysql.createConnection({
 
 viewEmployees = () => {
     console.log('displaying all current employees...\n');
-    const sql = `SELECT employee.id AS id, employee.first_name AS employee, employee.last_name AS role, employee.MANAGER_ID AS manager FROM employee`; 
+    const sql = `SELECT employee.id, 
+                employee.first_name, 
+                employee.last_name, 
+                roles.title, 
+                department.title AS department,
+                roles.salary, 
+                CONCAT (manager.first_name, " ", manager.last_name) AS manager
+                FROM employee
+                LEFT JOIN roles ON employee.roles_id = roles.id
+                LEFT JOIN department ON roles.department_id = department.id
+                LEFT JOIN employee manager ON employee.manager_id = manager.id`; 
   
-    connection.promise().query(sql, (err, rows) => {
-      if (err) throw err;
-      console.table(rows);
-      promptUser();
-    });
-  };
+    connection.query(sql, (err, rows) => {
+        if (err) throw err; 
+        console.table(rows);
+        initalQuest();
+        });
+ };
 
 // View all Employees:
 // I need a function that would allow mysql to read this txt within our command line 
@@ -81,7 +95,7 @@ addEmployee = () => {
     inquirer.prompt([
       {
         type: 'input',
-        name: 'empFistName',
+        name: 'empFirstName',
         message: "What is the employee's first name?",
         validate: empFirstName => {
           if (empFirstName) {
@@ -110,9 +124,9 @@ addEmployee = () => {
       const params = [answer.empFirstName, answer.empLastName]
   
       // grab roles from roles table
-      const roleSql = `SELECT role.id, role.title FROM role`;
+      const roleSql = `SELECT roles.id, roles.title FROM roles`;
     
-      connection.promise().query(roleSql, (err, data) => {
+      connection.query(roleSql, (err, data) => {
         if (err) throw err; 
         
         const roles = data.map(({ id, title }) => ({ name: title, value: id }));
@@ -131,7 +145,7 @@ addEmployee = () => {
   
                 const managerSql = `SELECT * FROM employee`;
   
-                connection.promise().query(managerSql, (err, data) => {
+                connection.query(managerSql, (err, data) => {
                   if (err) throw err;
   
                   const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id }));
@@ -150,12 +164,12 @@ addEmployee = () => {
                       const manager = managerChoice.manager;
                       params.push(manager);
   
-                      const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                      const sql = `INSERT INTO employee (first_name, last_name, roles_id, manager_id)
                       VALUES (?, ?, ?, ?)`;
   
                       connection.query(sql, params, (err, result) => {
                       if (err) throw err;
-                      console.log(`Added ${data.empFirstName} ${dataempLastName} to the database`)
+                      console.log(`Added ${answer.empFirstName} ${answer.empLastName} to the database`)
   
                       viewEmployees();
                 });
@@ -170,7 +184,7 @@ addEmployee = () => {
     // get employees from employee table 
     const employeeSql = `SELECT * FROM employee`;
   
-    connection.promise().query(employeeSql, (err, data) => {
+    connection.query(employeeSql, (err, data) => {
       if (err) throw err; 
   
     const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id }));
@@ -188,9 +202,9 @@ addEmployee = () => {
           const params = []; 
           params.push(employee);
   
-          const roleSql = `SELECT * FROM role`;
+          const roleSql = `SELECT * FROM roles`;
   
-          connection.promise().query(roleSql, (err, data) => {
+          connection.query(roleSql, (err, data) => {
             if (err) throw err; 
   
             const roles = data.map(({ id, title }) => ({ name: title, value: id }));
@@ -214,11 +228,11 @@ addEmployee = () => {
   
                   // console.log(params)
   
-                  const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+                  const sql = `UPDATE employee SET roles_id = ? WHERE id = ?`;
   
                   connection.query(sql, params, (err, result) => {
                     if (err) throw err;
-                  console.log(`Success! ${Data.empName} is now a ${Data.role}`);
+                  console.log(`Success! ${answer.empName} is now a ${answer.role}`);
                 
                   viewEmployees();
             });
@@ -230,12 +244,14 @@ addEmployee = () => {
 
   viewRoles = () => {
     console.log('displaying all current roles...\n');
-    const sql = `SELECT roles.id AS id, roles.title AS title, roles.salary AS salary, employee.department AS department FROM roles`; 
+    const sql = `SELECT roles.id, roles.title, department.title AS department
+                FROM roles
+                INNER JOIN department ON roles.department_id = department.id`; 
   
-    connection.promise().query(sql, (err, rows) => {
+    connection.query(sql, (err, rows) => {
       if (err) throw err;
       console.table(rows);
-      promptUser();
+      initalQuest();
     });
   };
 
@@ -275,7 +291,7 @@ addEmployee = () => {
       // grab roles from roles table
       const departmentSql = `SELECT department.id, department.title FROM department`;
     
-      connection.promise().query(departmentSql, (err, data) => {
+      connection.query(departmentSql, (err, data) => {
         if (err) throw err; 
         
         const department = data.map(({ id, title }) => ({ name: title, value: id }));
@@ -291,12 +307,12 @@ addEmployee = () => {
               .then(departmentChoice => {
                 const department = departmentChoice.department;
                 params.push(department);
-                const sql = `INSERT INTO role (title, salary, department_id)
+                const sql = `INSERT INTO roles (title, salary, department_id)
                 VALUES (?, ?, ?)`;
 
                 connection.query(sql, params, (err, result) => {
                 if (err) throw err;
-                console.log(`Success! ${data.newRole} has now been added to the database!`); 
+                console.log(`Success! ${answer.newRole} has now been added to the database!`); 
 
             viewRoles();
        });
@@ -309,10 +325,10 @@ viewDepartment = () => {
     console.log('Displaying all current departments...\n');
     const sql = `SELECT department.id AS id, department.title AS department FROM department`; 
   
-    connection.promise().query(sql, (err, rows) => {
+    connection.query(sql, (err, rows) => {
       if (err) throw err;
       console.table(rows);
-      promptUser();
+      initalQuest();
     });
   };
 
@@ -334,11 +350,11 @@ addDepartment = () => {
       }
     ])
       .then(answer => {
-        const sql = `INSERT INTO department (name)
+        const sql = `INSERT INTO department (title)
                     VALUES (?)`;
         connection.query(sql, answer.newDepartment, (err, result) => {
           if (err) throw err;
-          console.log(`Sucess! ${data.newDepartment} has now been added to the database!`); 
+          console.log(`Sucess! ${answer.newDepartment} has now been added to the database!`); 
   
           viewDepartment();
       });
