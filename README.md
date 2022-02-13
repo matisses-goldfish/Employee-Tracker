@@ -24,7 +24,8 @@ This application allows a user to create a view their employees, roles, and sala
 
 ## Walkthrough:
 ---
-![Walkthrough video of the Application]()
+### Click on the img to begin the demo video!
+[![Employee Tracker demo](http://img.youtube.com/vi/9xZHtHGv_tU/0.jpg)](https://www.youtube.com/embed/9xZHtHGv_tU)
 
 ## Reference:
 ---
