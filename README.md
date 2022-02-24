@@ -2,17 +2,18 @@
 # Employee Tracker 
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](https://opensource.org/licenses/MIT)
 #### **Name:** Honore Nelson
-#### **Deployed Link:** N/A
+#### **Deployed Link:** backend application- no url
 #### **Github Repo:** https://github.com/matisses-goldfish/Employee-Tracker
 ---
     
 ##  Table of Contents:
 * [Description](#description)
 * [Walkthrough](#walkthrough)
+* [Application](#application)
 * [Reference](#reference)
 * [Installation](#installation)
 * [Usage Information](#usage)
-* [Testing Instructions](#testing)
+* [Technologies Used](#technologies-used)
 * [Authors](#authors)
 * [License](#license)
 * [Question](#questions)
@@ -26,6 +27,11 @@ This application allows a user to create a view their employees, roles, and sala
 ---
 ### Click on the img to begin the demo video!
 [![Employee Tracker demo](http://img.youtube.com/vi/9xZHtHGv_tU/0.jpg)](https://www.youtube.com/embed/9xZHtHGv_tU)
+
+## Application:
+---
+![application index](ss1.png)
+![application database](ss2.png)
 
 ## Reference:
 ---
@@ -61,6 +67,13 @@ THEN I am prompted to select an employee to update and their new role and this i
     node server.js 
 #### to begin the application
     
+## Technologies Used:
+---
+* dotenv
+* inuirer
+* mysql
+
+
 ## Contribution Guidelines
 ---
 Contribute using the github workflow model
