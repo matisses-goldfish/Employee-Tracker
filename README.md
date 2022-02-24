@@ -21,7 +21,7 @@
 
 ## Description:
 ---
-This application allows a user to create a view their employees, roles, and salaries, through this command line application.
+This application allows a user to create and view their employees, roles, and salaries, through this command line application.
 
 ## Walkthrough:
 ---
